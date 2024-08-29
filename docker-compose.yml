@@ -1,0 +1,31 @@
+services:
+  mysql:
+    image: mysql:8.3.0
+    container_name: mysql-container1
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD : "true"
+      MYSQL_DATABASE: hospital
+    ports:
+      - "3307:3306"
+    networks:
+      - mynetwork
+    volumes:
+      - mysql_data:/var/lib/mysql
+  app:
+    image: hospital:latest
+    container_name: hospital-container
+    depends_on:
+      - mysql
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-container1:3306/hospital?characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+    networks:
+      - mynetwork
+networks:
+  mynetwork:
+    name: hospital_mynetwork
+    driver: bridge
+volumes:
+  mysql_data:
